@@ -593,22 +593,3 @@ rag_from_scratch/
 │   └── compare_chunking.py
 ```
 
----
-
-# Interview Takeaways
-
-### Why is chunking important?
-
-Chunking directly affects retrieval quality. Poor chunk boundaries can separate related information and reduce retrieval accuracy.
-
-### Why use overlap?
-
-Overlap preserves context near chunk boundaries and reduces the chance of missing important information.
-
-### Why is sentence chunking often better than fixed chunking?
-
-Sentence chunking preserves complete semantic units and avoids breaking information across chunks.
-
-### What did this experiment demonstrate?
-
-Changing only the chunking strategy improved retrieval accuracy from 75% to 100%, highlighting the importance of retrieval engineering in RAG systems.
