@@ -396,3 +396,219 @@ RAG exists because LLMs cannot access private or newly created information and m
 Knowledge = RAG
 
 Behavior/Style = Fine-Tuning
+# Day 2: Chunking Strategy Comparison
+
+A Retrieval-Augmented Generation (RAG) system is only as good as its retrieval pipeline. One of the most important factors affecting retrieval quality is chunking.
+
+This project explores multiple chunking strategies and evaluates their impact on retrieval performance using the same document, embedding model, and vector store.
+
+---
+
+# Why Chunking Matters
+
+Documents are usually too large to embed and retrieve efficiently as a single unit.
+
+Chunking breaks documents into smaller pieces that can be embedded and searched independently.
+
+Poor chunking can lead to:
+
+* Lost context
+* Broken sentences
+* Missed retrievals
+* Lower answer quality
+
+Even powerful LLMs cannot answer correctly if the retriever fails to provide the relevant context.
+
+---
+
+# Implemented Chunking Strategies
+
+## Fixed Chunking
+
+Splits text into chunks of a fixed size.
+
+Example:
+
+```text
+Chunk 1 → Characters 1–100
+
+Chunk 2 → Characters 101–200
+
+Chunk 3 → Characters 201–300
+```
+
+Advantages:
+
+* Simple
+* Fast
+
+Disadvantages:
+
+* Can split sentences
+* May break semantic meaning
+
+---
+
+## Sentence Chunking
+
+Splits documents using sentence boundaries.
+
+Example:
+
+```text
+Sentence 1
+
+Sentence 2
+
+Sentence 3
+```
+
+Advantages:
+
+* Preserves semantic meaning
+* Better retrieval quality
+
+Disadvantages:
+
+* Uneven chunk sizes
+
+---
+
+## Overlap Chunking
+
+Creates overlapping chunks to preserve information near chunk boundaries.
+
+Example:
+
+```text
+Chunk 1
+[1-100]
+
+Chunk 2
+[81-180]
+```
+
+Advantages:
+
+* Better context preservation
+* Reduces retrieval failures
+
+Disadvantages:
+
+* Increased storage requirements
+* Duplicate information
+
+---
+
+# Evaluation Methodology
+
+The same document was indexed using each chunking strategy.
+
+Test Queries:
+
+```text
+What is the notice period?
+
+How many annual leave days are provided?
+
+Who receives health insurance?
+
+Is remote work allowed?
+```
+
+For each query:
+
+1. Retrieve Top-1 chunk
+2. Compare against expected answer
+3. Count correct retrievals
+4. Compute retrieval accuracy
+
+Formula:
+
+```text
+Accuracy =
+Correct Retrievals
+-------------------
+Total Queries
+```
+
+---
+
+# Experimental Results
+
+| Chunking Strategy | Accuracy |
+| ----------------- | -------- |
+| Fixed Chunking    | 75.00%   |
+| Sentence Chunking | 100.00%  |
+| Overlap Chunking  | 100.00%  |
+
+---
+
+# Result Analysis
+
+Fixed Chunking achieved lower accuracy because some information was split across chunk boundaries.
+
+Sentence Chunking preserved complete semantic units, resulting in perfect retrieval performance on the evaluation set.
+
+Overlap Chunking also achieved perfect retrieval by maintaining context near chunk boundaries through overlapping regions.
+
+These results demonstrate that chunking strategy significantly impacts retrieval quality, even when the embedding model and vector store remain unchanged.
+
+---
+
+# Key Learning
+
+A common misconception is that retrieval quality depends primarily on the embedding model or the LLM.
+
+In practice:
+
+```text
+Bad Chunking
+        ↓
+Bad Retrieval
+        ↓
+Bad Context
+        ↓
+Bad Answer
+```
+
+Most real-world RAG failures occur before generation, making chunking one of the most critical stages of the pipeline.
+
+---
+
+# Files Added in Day 2
+
+```text
+rag_from_scratch/
+│
+├── chunkers/
+│   ├── fixed_chunker.py
+│   ├── sentence_chunker.py
+│   └── overlap_chunker.py
+│
+├── evaluation/
+│   └── evaluate.py
+│
+├── experiments/
+│   └── compare_chunking.py
+```
+
+---
+
+# Interview Takeaways
+
+### Why is chunking important?
+
+Chunking directly affects retrieval quality. Poor chunk boundaries can separate related information and reduce retrieval accuracy.
+
+### Why use overlap?
+
+Overlap preserves context near chunk boundaries and reduces the chance of missing important information.
+
+### Why is sentence chunking often better than fixed chunking?
+
+Sentence chunking preserves complete semantic units and avoids breaking information across chunks.
+
+### What did this experiment demonstrate?
+
+Changing only the chunking strategy improved retrieval accuracy from 75% to 100%, highlighting the importance of retrieval engineering in RAG systems.
