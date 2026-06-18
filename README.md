@@ -593,3 +593,482 @@ rag_from_scratch/
 │   └── compare_chunking.py
 ```
 
+# Day 3: Embeddings, Vector Databases and Retrieval Systems
+
+After exploring chunking strategies in Day 2, the next step is understanding how documents are represented and retrieved.
+
+This phase introduces embedding models, vector databases, dense retrieval, sparse retrieval, hybrid retrieval, and production retrieval architectures.
+
+---
+
+# Why Retrieval Matters
+
+A Retrieval-Augmented Generation (RAG) system depends on retrieving the correct context before generation begins.
+
+Even the most capable LLM cannot answer correctly if the retriever fails to return the relevant information.
+
+Retrieval quality depends primarily on:
+
+1. Chunking Strategy
+2. Embedding Model
+3. Retrieval Method
+4. Reranking
+
+---
+
+# Dense Retrieval
+
+Dense retrieval uses embedding models to convert text into dense numerical vectors.
+
+Example:
+
+```text
+Question:
+How many vacation days are available?
+
+Document:
+Employees receive 20 days of annual leave.
+```
+
+Although the words differ, the meanings are similar.
+
+Dense retrieval captures semantic relationships and retrieves relevant content based on meaning rather than exact wording.
+
+Workflow:
+
+```text
+Document
+ ↓
+Embedding Model
+ ↓
+Vector
+
+Query
+ ↓
+Embedding Model
+ ↓
+Vector
+
+Cosine Similarity
+ ↓
+Top-K Chunks
+```
+
+Advantages:
+
+* Semantic understanding
+* Handles paraphrasing
+* Strong natural language search
+
+Limitations:
+
+* Can miss rare identifiers
+* Can struggle with exact keyword matching
+
+---
+
+# Sparse Retrieval
+
+Sparse retrieval relies on keyword matching instead of semantic similarity.
+
+Algorithms:
+
+* TF-IDF
+* BM25
+
+Example:
+
+```text
+Query:
+Clause 8.2
+
+Document:
+Clause 8.2 covers employee termination.
+```
+
+Sparse retrieval performs extremely well when exact keywords appear in the document.
+
+Advantages:
+
+* Excellent keyword matching
+* Handles legal clauses
+* Handles product IDs
+* Handles error codes
+
+Limitations:
+
+* Cannot understand semantic meaning
+* Misses paraphrased queries
+
+---
+
+# Hybrid Retrieval
+
+Hybrid retrieval combines dense and sparse retrieval.
+
+Workflow:
+
+```text
+Dense Search
+      +
+Sparse Search
+      ↓
+Score Fusion
+      ↓
+Top Results
+```
+
+Benefits:
+
+* Semantic understanding
+* Exact keyword matching
+* Higher recall
+* Higher precision
+
+Modern production RAG systems commonly use hybrid retrieval because it combines the strengths of both approaches.
+
+---
+
+# Embedding Models
+
+Embeddings convert text into vector representations.
+
+A vector captures semantic information that allows similarity search between queries and documents.
+
+Example:
+
+```text
+Employees receive annual leave.
+```
+
+becomes:
+
+```text
+[0.21, 0.84, -0.13, ...]
+```
+
+Similar meanings produce nearby vectors in embedding space.
+
+---
+
+## all-MiniLM-L6-v2
+
+Used in this project.
+
+Characteristics:
+
+* 384 dimensions
+* Fast inference
+* Lightweight
+* Beginner friendly
+
+Suitable for:
+
+* Learning RAG
+* Small projects
+* Local experimentation
+
+---
+
+## BAAI/bge-m3
+
+Open-source production embedding model.
+
+Characteristics:
+
+* Multilingual
+* High retrieval quality
+* Supports dense and sparse retrieval
+
+Suitable for:
+
+* Production RAG systems
+* Enterprise search
+
+---
+
+## text-embedding-3-large
+
+Commercial embedding model.
+
+Characteristics:
+
+* 3072 dimensions
+* Excellent retrieval performance
+* Strong multilingual capabilities
+
+Suitable for:
+
+* Large-scale production systems
+
+---
+
+# Embedding Dimensions
+
+Embedding dimension represents the number of values in a vector.
+
+Examples:
+
+```text
+384
+768
+1536
+3072
+```
+
+Trade-off:
+
+```text
+Higher Dimension
+        ↓
+Better Representation
+        ↓
+More Storage
+        ↓
+Higher Cost
+```
+
+---
+
+# Vector Databases
+
+Embedding vectors must be stored and searched efficiently.
+
+Vector databases provide fast similarity search for large collections of embeddings.
+
+---
+
+## FAISS
+
+Facebook AI Similarity Search.
+
+Characteristics:
+
+* In-memory vector search
+* Extremely fast
+* Open source
+* Local execution
+
+Best for:
+
+* Research
+* Experiments
+* Prototyping
+
+Limitations:
+
+* No metadata management
+* No persistence layer
+* Not a complete database
+
+---
+
+## Chroma
+
+Open-source vector database.
+
+Characteristics:
+
+* Persistent storage
+* Metadata support
+* Local or cloud deployment
+* Easy integration
+
+Best for:
+
+* Learning RAG
+* Personal projects
+* Local document assistants
+
+This project uses Chroma as the primary vector database.
+
+---
+
+## Pinecone
+
+Managed vector database service.
+
+Characteristics:
+
+* Serverless
+* Production ready
+* Automatic scaling
+* Managed infrastructure
+
+Best for:
+
+* Enterprise deployments
+* Large-scale applications
+
+---
+
+## pgvector
+
+Vector extension for PostgreSQL.
+
+Characteristics:
+
+* Store vectors inside PostgreSQL
+* SQL support
+* No separate vector database
+
+Best for:
+
+* Existing PostgreSQL systems
+* Small and medium production applications
+
+---
+
+# Reranking
+
+Retrieval systems typically return the Top-K most similar chunks.
+
+However, the highest similarity score is not always the most relevant document.
+
+Reranking introduces a second-stage model.
+
+Workflow:
+
+```text
+Query
+ ↓
+Retriever
+ ↓
+Top 20 Chunks
+ ↓
+Cross Encoder
+ ↓
+Top 5 Chunks
+ ↓
+LLM
+```
+
+The reranker scores query-document pairs and reorders results based on relevance.
+
+Benefits:
+
+* Higher precision
+* Better context quality
+* Reduced hallucinations
+
+---
+
+# Project Enhancements
+
+Day 3 introduces:
+
+```text
+Dense Retrieval
+Sparse Retrieval
+Hybrid Retrieval
+Chroma Vector Database
+FAISS Experimentation
+Retrieval Comparison
+```
+
+New project structure:
+
+```text
+rag_from_scratch/
+│
+├── retrieval/
+│   ├── dense_retriever.py
+│   ├── sparse_retriever.py
+│   └── hybrid_retriever.py
+│
+├── vectorstore/
+│   ├── chroma_store.py
+│   └── faiss_store.py
+│
+├── experiments/
+│   └── compare_retrieval.py
+```
+
+---
+
+# Retrieval Comparison
+
+Three retrieval strategies were implemented and evaluated.
+
+Methods:
+
+* Dense Retrieval
+* Sparse Retrieval (BM25)
+* Hybrid Retrieval
+
+Evaluation focused on retrieving the most relevant chunk for a set of predefined queries.
+
+Example:
+
+```text
+Dense Retrieval:
+100%
+
+Sparse Retrieval:
+75%
+
+Hybrid Retrieval:
+100%
+```
+
+Results may vary depending on dataset and chunking strategy.
+
+---
+
+# Key Learning
+
+A production RAG system is not simply:
+
+```text
+Documents
+ ↓
+LLM
+```
+
+Instead:
+
+```text
+Documents
+ ↓
+Chunking
+ ↓
+Embeddings
+ ↓
+Vector Database
+ ↓
+Retriever
+ ↓
+Reranker
+ ↓
+LLM
+```
+
+Retrieval quality often has a greater impact on final answer quality than the choice of LLM.
+
+---
+
+# Interview Takeaways
+
+### What is dense retrieval?
+
+Semantic retrieval using embeddings and vector similarity.
+
+### What is sparse retrieval?
+
+Keyword-based retrieval using algorithms such as BM25 and TF-IDF.
+
+### Why use hybrid retrieval?
+
+It combines semantic understanding and exact keyword matching.
+
+### Difference between FAISS and Chroma?
+
+FAISS is a vector search library, while Chroma is a full vector database with storage and metadata support.
+
+### What is reranking?
+
+A second-stage retrieval process that rescoring retrieved documents to improve relevance before generation.
+
+### Why is retrieval important?
+
+Because the LLM can only answer using the context it receives. Poor retrieval leads directly to poor answers.
